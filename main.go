@@ -11,7 +11,7 @@ import (
 	"github.com/ipthomas/tukdbint"
 )
 
-type SMNP struct {
+type Email struct {
 	Pathway       string
 	Expression    string
 	NHSId         string
@@ -36,7 +36,7 @@ func NewNotifyEvent(i TUK_DB_Interface) error {
 	return i.newNotifyEvent()
 }
 
-func (i *SMNP) newNotifyEvent() error {
+func (i *Email) newNotifyEvent() error {
 	log.SetFlags(log.Lshortfile)
 	tmpl, err := template.New("emailTemplate").Parse(emailTemplate)
 	if err != nil {
