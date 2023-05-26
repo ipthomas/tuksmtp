@@ -11,7 +11,7 @@ import (
 	"github.com/ipthomas/tukdbint"
 )
 
-type EmailNotify struct {
+type NotifyEvent struct {
 	Pathway       string
 	Expression    string
 	NHSId         string
@@ -26,78 +26,52 @@ type EmailNotify struct {
 	Subscriptions tukdbint.Subscriptions
 }
 
-type TUK_DB_Interface interface {
-	newNotifyEvent() error
-}
-
 var emailTemplate = "{{define 'notifcation'}}Notification of {{.Pathway}} Workflow {{.Expression}} Event for NHS ID {{.NHSId}}\nEvent Created by User {{.User}} at Organisation {{.Org}} in the Role of {{.Role}}\n{{end}}"
 
-func NewNotifyEvent(i TUK_DB_Interface) error {
-	return i.newNotifyEvent()
-}
-
-func (i *EmailNotify) newNotifyEvent() error {
-	log.SetFlags(log.Lshortfile)
-	tmpl, err := template.New("emailTemplate").Parse(emailTemplate)
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
+func (i *NotifyEvent) Notify() error {
+	var err error
 	var buf bytes.Buffer
-	if err := tmpl.Execute(&buf, i); err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	body := "ICB Workflow Event\n\n" + buf.String()
-	subject := i.Subject
-	from := i.From
-	smtpServer := i.Server
-	smtpPort := i.Port
-	smtpPassword := i.Password
-
-	for _, v := range i.Subscriptions.Subscriptions {
-		if v.Email != "" {
-			if err := SendEmail(from, v.Email, subject, smtpServer, smtpPassword, smtpPort, body); err != nil {
-				log.Printf("Error sending email to %s: Error: %s", v.Email, err.Error())
-			} else {
-				log.Printf("Notification sent to %s", v.Email)
+	var tmplt *template.Template
+	if tmplt, err = template.New("emailTemplate").Parse(emailTemplate); err == nil {
+		if err = tmplt.Execute(&buf, i); err == nil {
+			body := "ICB Workflow Event\n\n" + buf.String()
+			for _, v := range i.Subscriptions.Subscriptions {
+				if v.Email != "" {
+					emailBody := fmt.Sprintf("Subject: %s\r\n\r\n%s", i.Subject, body)
+					auth := smtp.PlainAuth("", i.From, i.Password, i.Server)
+					conn, err := smtp.Dial(i.Server + ":" + i.Port)
+					if err != nil {
+						log.Println(err.Error())
+						return err
+					}
+					defer conn.Close()
+					tlsConfig := &tls.Config{
+						InsecureSkipVerify: true,
+						ServerName:         i.Server,
+					}
+					if err = conn.StartTLS(tlsConfig); err == nil {
+						if err = conn.Auth(auth); err == nil {
+							if err = conn.Mail(i.From); err == nil {
+								if err = conn.Rcpt(v.Email); err == nil {
+									if wc, err := conn.Data(); err != nil {
+										log.Println(err.Error())
+									} else {
+										if _, err = fmt.Fprint(wc, emailBody); err == nil {
+											log.Printf("Notification sent to %s", v.Email)
+										}
+									}
+								}
+							}
+						}
+					}
+					if err != nil {
+						log.Println(err.Error())
+					}
+				}
 			}
 		}
+	} else {
+		log.Println(err.Error())
 	}
-	return nil
-}
-func SendEmail(from, to, subject, smtpServer, smtpPassword, smtpPort, body string) error {
-	emailBody := fmt.Sprintf("Subject: %s\r\n\r\n%s", subject, body)
-	auth := smtp.PlainAuth("", from, smtpPassword, smtpServer)
-	conn, err := smtp.Dial(smtpServer + ":" + smtpPort)
-	if err != nil {
-		return err
-	}
-	defer conn.Close()
-	tlsConfig := &tls.Config{
-		InsecureSkipVerify: true,
-		ServerName:         smtpServer,
-	}
-	if err := conn.StartTLS(tlsConfig); err != nil {
-		return err
-	}
-	if err := conn.Auth(auth); err != nil {
-		return err
-	}
-	if err := conn.Mail(from); err != nil {
-		return err
-	}
-	if err := conn.Rcpt(to); err != nil {
-		return err
-	}
-	wc, err := conn.Data()
-	if err != nil {
-		return err
-	}
-	defer wc.Close()
-	_, err = fmt.Fprint(wc, emailBody)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
