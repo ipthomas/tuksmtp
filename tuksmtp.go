@@ -11,7 +11,7 @@ import (
 	"github.com/ipthomas/tukdbint"
 )
 
-type Email struct {
+type EmailNotify struct {
 	Pathway       string
 	Expression    string
 	NHSId         string
@@ -26,17 +26,17 @@ type Email struct {
 	Subscriptions tukdbint.Subscriptions
 }
 
-var emailTemplate = "{{define 'notifcation'}}Notification of {{.Pathway}} Workflow {{.Expression}} Event for NHS ID {{.NHSId}}\nEvent Created by User {{.User}} at Organisation {{.Org}} in the Role of {{.Role}}\n{{end}}"
-
 type TUK_DB_Interface interface {
 	newNotifyEvent() error
 }
+
+var emailTemplate = "{{define 'notifcation'}}Notification of {{.Pathway}} Workflow {{.Expression}} Event for NHS ID {{.NHSId}}\nEvent Created by User {{.User}} at Organisation {{.Org}} in the Role of {{.Role}}\n{{end}}"
 
 func NewNotifyEvent(i TUK_DB_Interface) error {
 	return i.newNotifyEvent()
 }
 
-func (i *Email) newNotifyEvent() error {
+func (i *EmailNotify) newNotifyEvent() error {
 	log.SetFlags(log.Lshortfile)
 	tmpl, err := template.New("emailTemplate").Parse(emailTemplate)
 	if err != nil {
