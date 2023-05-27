@@ -69,22 +69,22 @@ func (i *NotifyEvent) Notify() error {
 	return err
 }
 func (i *NotifyEvent) shouldNotify(sub tukdbint.Subscription) bool {
+	var shouldReturn bool
 	if sub.Email != "" {
-		if sub.Pathway == "" && sub.NhsId == "" && sub.Expression == "" {
-			return true
-		}
 		if sub.Pathway != "" {
-			if i.Pathway == sub.Pathway {
-				if sub.NhsId == "" && sub.Expression == "" {
-					return true
-				}
-				if sub.NhsId != "" {
-					if i.NHSId == sub.NhsId {
-
-					}
+			shouldReturn = (i.Event.Pathway == sub.Pathway) && (sub.NhsId == "" || sub.NhsId == i.Event.NhsId) && (sub.Expression == "" || i.Event.Expression == sub.Expression)
+		} else {
+			if sub.NhsId != "" {
+				shouldReturn = (i.Event.NhsId == sub.NhsId) && (sub.Expression == "" || i.Event.Expression == sub.Expression)
+			} else {
+				if sub.Expression != "" {
+					shouldReturn = i.Event.Expression == sub.Expression
+				} else {
+					shouldReturn = true
 				}
 			}
 		}
 	}
-	return false
+	log.Printf("Subscription Matched : %v", shouldReturn)
+	return shouldReturn
 }
