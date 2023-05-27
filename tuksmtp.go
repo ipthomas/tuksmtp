@@ -22,30 +22,32 @@ type NotifyEvent struct {
 
 func (i *NotifyEvent) Notify() error {
 	var err error
-	body := "ICB Workflow Event\n\n" + i.Body
-	emailBody := fmt.Sprintf("Subject: %s\r\n\r\n%s", i.Subject, body)
-	auth := smtp.PlainAuth("", i.From, i.Password, i.Server)
-	conn, err := smtp.Dial(i.Server + ":" + i.Port)
-	if err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	defer conn.Close()
-	tlsConfig := &tls.Config{
-		InsecureSkipVerify: true,
-		ServerName:         i.Server,
-	}
-	if err = conn.StartTLS(tlsConfig); err != nil {
-		log.Println(err.Error())
-		return err
-	}
-	if err = conn.Auth(auth); err != nil {
-		log.Println(err.Error())
-		return err
-	}
-
 	for _, v := range i.Subscriptions.Subscriptions {
 		if i.shouldNotify(v) {
+			body := "ICB Workflow Event\n\n" + i.Body
+			emailBody := fmt.Sprintf("Subject: %s\r\n\r\n%s", i.Subject, body)
+			auth := smtp.PlainAuth("", i.From, i.Password, i.Server)
+			conn, err := smtp.Dial(i.Server + ":" + i.Port)
+			if err != nil {
+				log.Println(err.Error())
+				return err
+			}
+			log.Printf("Set Email Body\n%s", emailBody)
+			defer conn.Close()
+			tlsConfig := &tls.Config{
+				InsecureSkipVerify: true,
+				ServerName:         i.Server,
+			}
+			if err = conn.StartTLS(tlsConfig); err != nil {
+				log.Println(err.Error())
+				return err
+			}
+			log.Printf("Opened TLS connection to %s", i.Server)
+			if err = conn.Auth(auth); err != nil {
+				log.Println(err.Error())
+				return err
+			}
+			log.Printf("Successfully Authenticated as %s", i.From)
 			if err = conn.Mail(i.From); err != nil {
 				log.Println(err.Error())
 				continue
@@ -61,9 +63,9 @@ func (i *NotifyEvent) Notify() error {
 			}
 			if _, err = fmt.Fprint(wc, emailBody); err != nil {
 				log.Println(err.Error())
-				continue
+			} else {
+				log.Printf("Notification sent to %s", v.Email)
 			}
-			log.Printf("Notification sent to %s", v.Email)
 		}
 	}
 	return err
