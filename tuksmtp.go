@@ -10,6 +10,7 @@ import (
 )
 
 type NotifyEvent struct {
+	SubscriberURL string
 	Subject       string
 	Body          string
 	From          string
@@ -25,7 +26,8 @@ func (i *NotifyEvent) Notify() error {
 	for _, v := range i.Subscriptions.Subscriptions {
 		if i.shouldNotify(v) {
 			body := "ICB Workflow Event\n\n" + i.Body
-			emailBody := fmt.Sprintf("Subject: %s\r\n\r\n%s", i.Subject, body)
+			subDetails := fmt.Sprintf("\r\n\r\nClick this link to manage your subscriptions to ICB Notifications\r\n %s", i.SubscriberURL+"?act=select&topic=EMAIL&email="+v.Email+"&_format=html")
+			emailBody := fmt.Sprintf("Subject: %s\r\n\r\n%s%s", i.Subject, body, subDetails)
 			auth := smtp.PlainAuth("", i.From, i.Password, i.Server)
 			log.Printf("Set Email Body\n%s", emailBody)
 			conn, err := smtp.Dial(i.Server + ":" + i.Port)
