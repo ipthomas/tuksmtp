@@ -30,8 +30,8 @@ func (i *NotifyEvent) Notify() error {
 			i.ConsumerURL = i.ConsumerURL + "?act=select&pathway=" + i.Event.Pathway + "&nhs=" + i.Event.NhsId + "&vers=" + tukutil.GetStringFromInt(i.Event.Version) + "&_format=html"
 			i.SubscriberURL = i.SubscriberURL + "?act=select&topic=EMAIL&email=" + v.Email + "&_format=html"
 			i.Body = "ICB Workflow Event\n\n" + i.Body
-			wfDetails := fmt.Sprintf("\r\n\r\nClick this link to view Workflow Details\r\n %s", i.ConsumerURL)
-			subDetails := fmt.Sprintf("\r\n\r\nClick this link to manage your Subscriptions to ICB Notifications\r\n %s", i.SubscriberURL)
+			wfDetails := fmt.Sprintf("\r\n\r\nClick this link to view Workflow Details\r\n %s \r\n", i.ConsumerURL)
+			subDetails := fmt.Sprintf("\r\n\r\nClick this link to manage your Subscriptions to ICB Notifications\r\n %s \r\n", i.SubscriberURL)
 			emailBody := fmt.Sprintf("Subject: %s\r\n\r\n%s", i.Subject, i.Body)
 			emailBody = emailBody + wfDetails + subDetails
 			auth := smtp.PlainAuth("", i.From, i.Password, i.Server)
