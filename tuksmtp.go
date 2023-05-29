@@ -11,9 +11,6 @@ import (
 )
 
 type NotifyEvent struct {
-	User          string
-	Org           string
-	Role          string
 	SubscriberURL string
 	ConsumerURL   string
 	Subject       string
@@ -30,7 +27,7 @@ func (i *NotifyEvent) Notify() error {
 	var err error
 	for _, v := range i.Subscriptions.Subscriptions {
 		if i.shouldNotify(v) {
-			i.ConsumerURL = i.ConsumerURL + "?act=select&user=" + i.User + "&org=" + i.Org + "&role=" + i.Role + "&config=xdw&pathway=" + i.Event.Pathway + "&nhs=" + i.Event.NhsId + "&vers=" + tukutil.GetStringFromInt(i.Event.Version) + "&_format=html"
+			i.ConsumerURL = i.ConsumerURL + "?act=select&user=" + v.User + "&org=" + v.Org + "&role=" + v.Role + "&config=xdw&pathway=" + i.Event.Pathway + "&nhs=" + i.Event.NhsId + "&vers=" + tukutil.GetStringFromInt(i.Event.Version) + "&_format=html"
 			i.SubscriberURL = i.SubscriberURL + "?act=select&topic=EMAIL&email=" + v.Email + "&_format=html"
 			i.Body = "ICB Workflow Event\n\n" + i.Body
 			wfDetails := fmt.Sprintf("\r\n\r\nClick this link to view Workflow Details\r\n %s \r\n", i.ConsumerURL)
