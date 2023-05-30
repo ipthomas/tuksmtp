@@ -3,7 +3,7 @@ module github.com/ipthomas/tuksmtp
 go 1.20
 
 require (
-	github.com/ipthomas/tukdbint v1.3.50
+	github.com/ipthomas/tukdbint v1.3.51
 	github.com/ipthomas/tukutil v1.3.12
 )
 

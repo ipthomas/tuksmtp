@@ -385,7 +385,7 @@ func (i *Subscriptions) newEvent() error {
 
 		for rows.Next() {
 			sub := Subscription{}
-			if err := rows.Scan(&sub.Id, &sub.Created, &sub.BrokerRef, &sub.Pathway, &sub.Topic, &sub.Expression, &sub.Email, &sub.NhsId); err != nil {
+			if err := rows.Scan(&sub.Id, &sub.Created, &sub.BrokerRef, &sub.Pathway, &sub.Topic, &sub.Expression, &sub.Email, &sub.NhsId, &sub.User, &sub.Org, &sub.Role); err != nil {
 				switch {
 				case err == sql.ErrNoRows:
 					return nil

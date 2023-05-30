@@ -8,6 +8,8 @@ github.com/ipthomas/tukdbint v1.3.39 h1:sOQaUpfl/FwM7/txq6JPKtKd3hdBkQ0VbWN7XMAR
 github.com/ipthomas/tukdbint v1.3.39/go.mod h1:/AQRReRA9CcCs1zSSl3eEY6sbn7cvXHFU/ecTH5N4Ug=
 github.com/ipthomas/tukdbint v1.3.50 h1:RPo57E4EkUD3hpm/rQdakzqMjsip7L28aL4yyQO9E4Q=
 github.com/ipthomas/tukdbint v1.3.50/go.mod h1:/AQRReRA9CcCs1zSSl3eEY6sbn7cvXHFU/ecTH5N4Ug=
+github.com/ipthomas/tukdbint v1.3.51 h1:WgYpe8Z5Yw2Xn4zXyC28BBj1BDB7cfSc4lA7kY0GpNk=
+github.com/ipthomas/tukdbint v1.3.51/go.mod h1:/AQRReRA9CcCs1zSSl3eEY6sbn7cvXHFU/ecTH5N4Ug=
 github.com/ipthomas/tukhttp v1.3.18 h1:fcXd1kXGC2btFbwlffPrqqdx8jIBYwERDj1JNkhQSts=
 github.com/ipthomas/tukhttp v1.3.18/go.mod h1:LQUUjwleozOeXz5bI8+oYRNyH772gj+OXoaGs0dyE0Q=
 github.com/ipthomas/tukutil v1.3.12 h1:xAc9ZTkNxesJBLa9BhfcH3kDuYIFVJdsqLXgJXqTc64=
