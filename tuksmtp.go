@@ -89,15 +89,15 @@ func (i *NotifyEvent) shouldNotify(sub tukdbint.Subscription) (string, bool) {
 	var shouldReturn bool
 	if sub.Email != "" {
 		if sub.Pathway != "" {
+			stmt = stmt + " for " + tukdbint.GetIDMapsMappedId(sub.Pathway) + " " + sub.NhsId + " " + tukdbint.GetIDMapsMappedId(sub.Expression) + " Events"
 			shouldReturn = (i.Event.Pathway == sub.Pathway) && (sub.NhsId == "" || sub.NhsId == i.Event.NhsId) && (sub.Expression == "" || i.Event.Expression == sub.Expression)
-			stmt = stmt + " for " + sub.Pathway + " " + sub.NhsId + " " + sub.Expression + " Events"
 		} else {
 			if sub.NhsId != "" {
-				stmt = stmt + " for " + sub.NhsId + " " + sub.Expression + " Events"
+				stmt = stmt + " for " + sub.NhsId + " " + tukdbint.GetIDMapsMappedId(sub.Expression) + " Events"
 				shouldReturn = (i.Event.NhsId == sub.NhsId) && (sub.Expression == "" || i.Event.Expression == sub.Expression)
 			} else {
 				if sub.Expression != "" {
-					stmt = stmt + " for " + sub.Expression + " Events"
+					stmt = stmt + " for " + tukdbint.GetIDMapsMappedId(sub.Expression) + " Events"
 					shouldReturn = i.Event.Expression == sub.Expression
 				} else {
 					shouldReturn = true
@@ -105,84 +105,7 @@ func (i *NotifyEvent) shouldNotify(sub tukdbint.Subscription) (string, bool) {
 			}
 		}
 	}
-	stmt = stmt + "\n\n"
+	stmt = stmt + "\n"
 	log.Printf("Subscription Matched : %v", shouldReturn)
 	return stmt, shouldReturn
 }
-
-// package main
-
-// import (
-// 	"crypto/tls"
-// 	"fmt"
-// 	"net/smtp"
-// )
-
-// func SendEmail(from, to, subject, body string) error {
-// 	// SMTP server configuration
-// 	smtpServer := "smtp.gmail.com"
-// 	smtpPort := "587"
-// 	smtpUsername := "admin@tiani-spirit.co.uk"
-// 	smtpPassword := "cTjh_M7b7XWZa9_8qZMR"
-
-// 	// Compose the email
-// 	emailBody := fmt.Sprintf("Subject: %s\r\n\r\n%s", subject, body)
-
-// 	// Establish a connection to the SMTP server
-// 	auth := smtp.PlainAuth("", smtpUsername, smtpPassword, smtpServer)
-// 	conn, err := smtp.Dial(smtpServer + ":" + smtpPort)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer conn.Close()
-
-// 	// StartTLS to initiate a secure (encrypted) connection
-// 	tlsConfig := &tls.Config{
-// 		InsecureSkipVerify: true,
-// 		ServerName:         smtpServer,
-// 	}
-// 	if err := conn.StartTLS(tlsConfig); err != nil {
-// 		return err
-// 	}
-
-// 	// Authenticate
-// 	if err := conn.Auth(auth); err != nil {
-// 		return err
-// 	}
-
-// 	// Set the sender and recipient
-// 	if err := conn.Mail(from); err != nil {
-// 		return err
-// 	}
-// 	if err := conn.Rcpt(to); err != nil {
-// 		return err
-// 	}
-
-// 	// Send the email body
-// 	wc, err := conn.Data()
-// 	if err != nil {
-// 		return err
-// 	}
-// 	defer wc.Close()
-
-// 	_, err = fmt.Fprint(wc, emailBody)
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	return nil
-// }
-
-// func main() {
-// 	from := "admin@tiani-spirit.co.uk"
-// 	to := "ian.thomas@tiani-spirit.co.uk"
-// 	subject := "Hello, World!"
-// 	body := "This is the body of the email."
-
-// 	err := SendEmail(from, to, subject, body)
-// 	if err != nil {
-// 		fmt.Println("Error sending email:", err)
-// 	} else {
-// 		fmt.Println("Email sent successfully!")
-// 	}
-// }
